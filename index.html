@@ -1,0 +1,316 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+
+<HEAD>
+
+   <TITLE>Conditional Dissociation. LeLeLe (LEave and LEt LEave)</TITLE>
+
+   <META http-equiv=Content-Type content="text/html; charset=windows-1252">
+
+   <META name=keywords content="LeLeLe, conditional dissociation, cooperation, evolution, evolutionary, game theory, prisoner dilemma, netLogo, agent-based modelling">
+
+   <META name=Description content="LeLeLe (LEave and LEt LEave) is a model designed to formally analyse the mechanism of conditional dissociation in the evolutionary emergence of cooperation.">
+
+   <META name=Authors content="Luis R. Izquierdo, Segismundo S. Izquierdo, Fernando Vega-Redondo">
+
+   <STYLE type="text/css">
+      H1 {
+         BACKGROUND-COLOR: #111199;
+         color: #ffffff;
+         font-family: monospace
+      }
+   </STYLE>
+   <STYLE type="text/css">
+      H2 {
+         BACKGROUND-COLOR: #66ccff;
+         font-family: arial
+      }
+   </STYLE>
+   <STYLE type="text/css">
+      H3 {
+         BACKGROUND-COLOR: #cccccc;
+         font-family: verdana;
+         font-weight: bold
+      }
+   </STYLE>
+   <STYLE type="text/css">
+      p {
+         font-family: monospace
+      }
+   </STYLE>
+   <STYLE type="text/css">
+      table {
+         font-family: monospace
+      }
+   </STYLE>
+   <STYLE type="text/css">
+      ul {
+         font-family: monospace
+      }
+   </STYLE>
+   <STYLE type="text/css">
+      ol {
+         font-family: monospace
+      }
+   </STYLE>
+   <STYLE type="text/css">
+      i.parameter {
+         font-family: arial;
+         color: red;
+         font-weight: bold
+      }
+   </STYLE>
+   <STYLE type="text/css">
+      i.button {
+         font-family: arial;
+         color: blue;
+         font-weight: bold
+      }
+   </STYLE>
+   <STYLE type="text/css">
+      i.value {
+         font-family: arial;
+         color: #444444;
+         font-weight: bold
+      }
+   </STYLE>
+   <STYLE type="text/css">
+      i.slider {
+         font-family: arial;
+         color: green;
+         font-weight: bold
+      }
+   </STYLE>
+   <STYLE type="text/css">
+      i.monitor {
+         font-family: arial;
+         color: #B8860B;
+         font-weight: bold
+      }
+   </STYLE>
+   <STYLE type="text/css">
+      i.plot {
+         font-family: arial;
+         color: brown;
+         font-weight: bold
+      }
+   </STYLE>
+
+</HEAD>
+
+<body>
+
+   <H1>LeLeLe (LEave and LEt LEave)</H1>
+   <h3>Luis R. Izquierdo, Segismundo S. Izquierdo &amp; Fernando Vega-Redondo</h3>
+
+   <H2>HOW TO INSTALL THE MODEL</H2>
+
+   <p>To use LeLeLe, you will have to install <a target="_blank" href="http://ccl.northwestern.edu/netlogo/">NetLogo 5.3.1 (free and open source)</a> and download <a href="LeLeLe.nlogo">the model itself</a>. Unzip the downloaded file and click on LeLeLe.nlogo</p>
+
+   <!--
+   <p>The applet requires Java 5 or higher. You may obtain the latest Java plugin from <a href="http://www.java.com/">Oracle's Java site</a>. If you find that the application has been blocked by security settings, you have (at least) two options:
+      <ul>
+         <li> Set the security level to "Medium" through the Java Control Panel. (In Windows, you can execute "javaws -viewer" by typing that command on the line just above the "Start" button.)
+            <li> Run the model offline. For this, I'm afraid that you will have to download <a target="_blank" href="http://ccl.northwestern.edu/netlogo/">NetLogo (free and open source) here</a> and <a href="LeLeLe.nlogo">the model here</a>.
+      </ul>
+   </p>
+   <p> We are sorry for the inconvenience.
+   </p>
+   <hr>
+
+   <p align="center">
+      <applet code="org.nlogo.lite.Applet" archive="NetLogoLite.jar" width="1050" height="680" alt="You can download NetLogo (free and open source) and the model clicking on the links below">
+         <param name="DefaultModel" value="LeLeLe.nlogo">
+         <param name="java_arguments" value="-Djnlp.packEnabled=true">
+      </applet>
+   </p>
+
+   <p>implemented in
+      <a target="_blank" href="http://ccl.northwestern.edu/netlogo/">NetLogo</a></p>
+
+   <p>Download model file:
+      <a href="LeLeLe.nlogo">LeLeLe.nlogo</a></p>
+
+   -->
+
+   <H2>OVERVIEW OF THE MODEL</H2>
+
+   <p><b>LeLeLe</b> (<b>Le</b>ave and <b>Le</b>t <b>Le</b>ave) is a model designed to analyse the effect of conditional dissociation in the evolutionary emergence of cooperation. This section gives an informal and brief overview of <b>LeLeLe</b>. We use bold red italicised arial font to denote <i class="parameter">parameters</i> (i.e. variables that can be set by the user).</p>
+
+   <p>In <b>LeLeLe</b>, there is a population of <i class="parameter">num-players</i> players that may be randomly matched in couples (partnerships) to play a 2x2 symmetric game. The 2 possible actions players can take in the game are denoted <b>C</b> (for <b>C</b>ooperate) and <b>D</b> (for <b>D</b>efect). After each interaction, every individual is given the option to stay in her current partnership, or break it (thus getting a new randomly chosen mate for the next stage).</p>
+
+   <p>At each time-step, every individual has a fixed probability of dying; the expected number of time-steps each individual lives is <i class="parameter">exp-life</i>. Whenever an individual dies, a new entrant comes in. In principle, new entrants adopt the strategy of an existing individual with probability proportional to her latest payoff, but mutations are also possible. Mutation occurs for each new entrant with probability <i class="parameter">prob-mutation</i>, and when this occurs, the new entrant picks up a decision rule at random.</p>
+
+   <H2>DESCRIPTION OF THE MODEL</H2>
+
+   <p>This section explains the formal model that <b>LeLeLe</b> implements. The information provided here should suffice to re-implement the same formal model in any sophisticated enough modelling platform. The figure below provides an informal (and slightly simplified) sketch that illustrates the sequence of events within each time-step.</p>
+
+   <center><img src="timeline.png" alt="timeline"></center>
+   <p align="center"><i>Sketch of the sequence of events within each time-step. For the sake of clarity in the illustration, it is assumed that every individual is paired, i.e. <i class="parameter">prob-rematch</i> = 1.
+      <br>The "Remaining Pairs" and "Singles" at the end of a time-step are identical to the "Existing Pairs" and "Singles" in the next time-step.</i>
+   </p>
+
+   <h3>The game</h3>
+
+   <p>Consider a population consisting of <i class="parameter">num-players</i> number of individuals; some of the individuals are matched in pairs and some are single.</p>
+
+   <p>Each individual who is single at the beginning of the time-step is matched with probability <i class="parameter">prob-rematch</i>; thus, an individual who is single at the beginning of the time-step stays single during the whole time-step with probability (1 - <i class="parameter">prob-rematch</i>). In that case, the single individual receives a payoff <i class="parameter">out-payoff</i>. (Naturally, an individual selected to be matched -with probability <i class="parameter">prob-rematch</i>- may not be matched in the end if there is no other selected single individual available to be matched with.)</p>
+
+   <p>Consider now the individuals who are part of a pair; the pair could have been formed in a previous time-step or it may have been newly created in the current time-step by matching two singles. In any case, in each time-step, the two members of every pair play a symmetric 2x2 game once, where each of them can undertake one of two possible actions. These two possible actions are called <b>C</b> (for <b>C</b>ooperate) and <b>D</b> (for <b>D</b>efect). The action selected by each of the players determines the magnitude of the payoff that each of them receives in that time-step: <i class="parameter">CC-payoff</i>, <i class="parameter">CD-payoff</i>, <i class="parameter">DC-payoff</i>, or <i class="parameter">DD-payoff</i>, where AB-payoff denotes the payoff that an individual choosing action A obtains when her counterpart chooses action B.</p>
+
+   <p>After having decided to cooperate or not, both individuals simultaneously decide whether to stay with their current partner (<b>S</b>, for <b>S</b>tay), or break the partnership (<b>L</b>, for <b>L</b>eave). The Stay/Leave decision may be conditioned on the current partner's preceding action (<b>C</b> or <b>D</b>) -hence the name "conditional dissociation". If any one of the two individuals in a pair decides to leave, the partnership is broken and both individuals become single.</p>
+
+   <h3>The strategies</h3>
+
+   <p>Each individual carries three "genes" that shape her behaviour.
+
+      <ul>
+         <li>The first gene determines the individual's action, <b>C</b> or <b>D</b>. A certain individual always takes the same action.
+            <li>The second gene determines what to do after the interaction in case one's partner has played <b>C</b>. The options are: <b>S</b> or <b>L</b>, where <b>S</b> stands for the decision to <b>Stay</b> with one's current partner and <b>L</b> stands for the decision to <b>Leave</b> one's current partner.
+               <li>Finally, the third gene determines the choice - also <b>S</b> or <b>L</b> - after one's current partner has just played <b>D</b>.
+
+      </ul>
+   </p>
+   <p>A strategy thus specifies a course of action at every possible juncture in an individual's life. We permit the 8 possible strategies or decision rules. Hence, there are (8&middot;8+8)/2 = 36 strategy pairs.</p>
+
+   <h3>The time line</h3>
+
+   <p>The population process advances in discrete time-steps <i>t</i> = 1, 2, 3,... which are called "ticks" in the interface of the model. In each time-step, the following events occur in sequence (see Figure above):
+
+      <ol>
+         <li><b><u>Random matching of singles</u></b>. At the beginning of each time-step, each single individual is considered to be matched with independent probability <i class="parameter">prob-rematch</i>. Selected singles are randomly matched in pairs (partnerships), with all matches being equally likely. If the number is odd, one randomly chosen individual is left single. The singles who have not been selected (an event that occurs with probability (1 - <i class="parameter">prob-rematch</i>) for each single individual) stay single for the rest of the time-step. Note that at the beginning of the very first time-step all individuals are single.</li>
+         <li><b><u>Payoffs</u></b>. Individuals who remain single throughout the time-step get a payoff equal to <i class="parameter">out-payoff</i>. All pairs play the 2x2 symmetric game described above once. Each individual's action (<b>C</b> or <b>D</b>) is determined by her decision rule (in particular, by her first gene).</li>
+         <li><b><u>Conditional dissociation</u></b>. Every individual involved in a partnership decides whether to leave or stay, according to her decision rule. Individuals involved in partnerships that are broken join the pool of singles entering the next time-step.</li>
+         <li><b><u>Death</u></b>. Individuals randomly die, an event that occurs independently for each individual with probability <i>p</i> in each time-step. Hence, the lifespan of an individual is geometrically distributed with mean-value <i class="parameter">exp-life</i> = 1/<i>p</i>. The death of an individual involved in a partnership renders her partner single, so those individuals whose partner died also join the pool of singles entering the next time-step.</li>
+         <li><b><u>Replacement</u></b>. Each dead individual is immediately replaced by a new entrant. This keeps the population size constant across all time-steps. These new entrants copy independently the decision rules of individuals in the population that started the current time-step; the probability that any particular individual's decision rule will be copied is proportional to the individual's payoff in the current time-step. Thus, only individuals who existed at the beginning of this time-step can be copied (and all of them may be copied, even if they have died in this time-step). This copying is subject to random mutation, which occurs with a constant probability <i class="parameter">prob-mutation</i>. In this event, the new entrant instead picks up a decision rule at random, with equal probability for all 8 decision rules. New entrants are also added to the pool of singles entering the next time-step. Thus, the pool of singles entering the following time-step will be composed of individuals who have been single all throughout the time-step, new entrants (imitators and mutants), separated individuals from broken pairs, and "widowed" individuals (those whose partner died).</li>
+      </ol>
+   </p>
+
+   <h3>The mean dynamics approximation</h3>
+
+   <p>The applet also computes and displays the expected motion of the agent-based model described above. The expected motion is sometimes called the mean dynamics or the mean field of the original model, and is expected to be a good approximation of the stochastic evolution of the agent-based model described above, when the population is large.</p>
+
+   <p>In essence, the mean dynamics system invokes a repeated use of the law of large numbers to identify the following magnitudes:
+
+      <ul>
+         <li>ex ante matching probabilities and ex post frequencies at the pairing stage,
+            <li>expected number of deaths and average number of deaths for each group of strategists,
+               <li>ex ante mutation probabilities and ex post frequencies.
+      </ul>
+   </p>
+   <p>Such an identification of probabilities and frequencies leads to a deterministic set of equations that provides the mean dynamics of the stochastic agent-based model described above. The behaviour of this set of deterministic equations can be taken to approximate the behavior of the stochastic process described above if the population is large.</p>
+
+   <h2>HOW TO USE IT</h2>
+
+   <h3>Payoffs</h3>
+
+   <ul>
+      <li><i class="slider">CC-payoff</i>: Payoff obtained by a player who cooperates when the other player cooperates too.</li>
+      <li><i class="slider">CD-payoff</i>: Payoff obtained by a player who cooperates when the other player defects.</li>
+      <li><i class="slider">DC-payoff</i>: Payoff obtained by a player who defects when the other player cooperates.</li>
+      <li><i class="slider">DD-payoff</i>: Payoff obtained by a player who defects when the other player also defects.</li>
+      <li><i class="slider">out-payoff</i>: Payoff obtained by a player who stays single throughout the time-step.</li>
+   </ul>
+
+   <h3>Population parameters</h3>
+
+   <ul>
+      <li><i class="slider">num-players</i>: Number of players in the population </li>
+      <li><i class="slider">initial-strategy</i>: Initial strategy for the population. It can be any of the 8 strategies for the whole population, or &quot;random&quot;.
+         <ul>
+            <li>If <i class="value">random</i> is selected, each player takes one of the 8 possible strategies with equal probability.</li>
+            <li>Otherwise, every player in the population adopts the selected strategy. We use the notation X1-X2-X3, where X1 &isin; {<b>C</b>, <b>D</b>} is the action to take with a new partner, X2 &isin; {<b>S</b>, <b>L</b>} is the action to take if one's current partner cooperated, and X3 &isin; {<b>S</b>, <b>L</b>} is the action to take if one's current partner defected. For instance, <i class="value">C-S-L</i> is the strategy that always cooperates, stays (and cooperates) if the current partner cooperated in the previous interaction, and leaves if the partner defected in the previous interaction.</li>
+         </ul>
+      </li>
+
+      <li><i class="slider">expected-life</i>: Expected life of every player in the population. This actually sets the probability of death at every time-step to the value (1/<i class="slider">exp-life</i>).</li>
+      <li><i class="slider">prob-mutation</i>: Probability with which a new entrant adopts a random strategy.</li>
+      <li><i class="slider">prob-rematch</i>: Probability with which each single individual at the beginning of the time-step is selected to be rematched.</li>
+   </ul>
+
+   <h3>Buttons</h3>
+
+   <ul>
+      <li><i class="button">Setup</i>: Creates a new population of <i class="slider">num-players</i> players using the corresponding <i class="slider">initial-strategies</i>. </li>
+      <li><i class="button">Go once</i>: Pressing this button will run the model one time-step only.</li>
+      <li><i class="button">Go</i>: Pressing this button will run the model until this same button is pressed again. </li>
+   </ul>
+
+   <h3>Definition of regimes</h3>
+   <p>The model can track the number of time-steps that the system has been in one of two possible regimes and the number of transitions in between these two regimes. The regimes are called <b>cc-regime</b> and <b>dd-regime</b>. At any given time-step:</p>
+   <ul>
+      <li>The system is said to be at the <b>cc-regime</b> if and only if the fraction of CC outcomes is contained in the interval [<i class="slider">cc-lower-limit</i> , <i class="slider">cc-upper-limit</i>].</li>
+      <li>The system is said to be at the <b>dd-regime</b> if and only if the fraction of DD outcomes is contained in the interval [<i class="slider">dd-lower-limit</i> , <i class="slider">dd-upper-limit</i>].</li>
+   </ul>
+
+
+   <p>The tracking is done from the tick <i class="slider">track-regimes-from-tick</i>.</p>
+
+   <h2>MONITORS AND PLOTS</h2>
+
+   <h3>Monitors</h3>
+
+   <ul>
+      <li><i class="monitor">ticks</i>: Number of time-steps that have gone by.</li>
+   </ul>
+
+   <ul>
+      <li><i class="monitor">% players in CC</i>: Percentage of players involved in partnerships where both players cooperated in the current time-step.</li>
+      <li><i class="monitor">% players in CD</i>: Percentage of players involved in partnerships where one player cooperated and the other player defected in the current time-step.</li>
+      <li><i class="monitor">% players in DD</i>: Percentage of players involved in partnerships where both players defected in the current time-step.</li>
+   </ul>
+
+   <ul>
+      <li><i class="monitor">% players in CC (md)</i>: Percentage of players involved in partnerships where both players cooperated in the current time-step in the Mean Dynamics approximation.</li>
+      <li><i class="monitor">% players in CD (md)</i>: Percentage of players involved in partnerships where one player cooperated and the other player defected in the current time-step in the Mean Dynamics approximation.</li>
+      <li><i class="monitor">% players in DD (md)</i>: Percentage of players involved in partnerships where both players defected in the current time-step in the Mean Dynamics approximation.</li>
+   </ul>
+
+   <ul>
+      <li><i class="monitor">cc-regime</i>: Number of time-steps that the system has been in the <b>cc-regime</b>.</li>
+      <li><i class="monitor">cc to dd -&gt;</i>: Number of transitions from the <b>cc-regime</b> to the <b>dd-regime</b>.</li>
+      <li><i class="monitor">&lt;- dd to cc</i>: Number of transitions from the <b>dd-regime</b> to the <b>cc-regime</b>.</li>
+      <li><i class="monitor">dd-regime</i>: Number of time-steps that the system has been in the <b>dd-regime</b>.</li>
+   </ul>
+
+   <ul>
+      <li><i class="monitor">%-CC</i>: Percentage of couples where both players cooperated in the current time-step.</li>
+      <li><i class="monitor">%-CD</i>: Percentage of couples where one player cooperated and the other player defected in the current time-step.</li>
+      <li><i class="monitor">%-DD</i>: Percentage of couples where both players defected in the current time-step.</li>
+   </ul>
+
+
+   <h3>Plots</h3>
+   <p>
+      Importantly, all plots refer to the situation before any player dies and is replaced.</p>
+
+   <ul>
+      <li><i class="plot">Players</i>: Time series of the number of players who are single, and the number of players who are involved in each type of partnership (CC, CD or DD).</li>
+      <li><i class="plot">Players (Mean Dynamics)</i>: Time series of the proportion of players who are single, and the number of players who are involved in each type of partnership (CC, CD or DD) in the Mean Dynamics approximation.</li>
+      <li><i class="plot">Strategy Distribution</i>: Time series of the distribution of strategies in the whole population.</li>
+      <li><i class="plot">Strategy Distribution (Mean Dynamics)</i>: Time series of the distribution of strategies in the whole population in the Mean Dynamics approximation.</li>
+      <li><i class="plot">Players' pairs</i>: Time series with the number of players who started the time-step being single (series named <font color=black><b>"singles before matching"</b></font>), the number of players who were part of a pair during the time-step (series named <font color=purple><b>"in pairs after matching"</b></font>) and the number of players who remained single all through the time-step (series named <font color=green><b>"singles after matching"</b></font>).</li>
+      <li><i class="plot">Players' pairs (Mean Dynamics)</i>: Time series with the proportion of players who started the time-step being single (series named <font color=black><b>"singles before matching"</b></font>), the proportion of players who were part of a pair during the time-step (series named <font color=purple><b>"in pairs after matching"</b></font>) and the proportion of players who remained single all through the time-step (series named <font color=green><b>"singles after matching"</b></font>) in the Mean Dynamics approximation.</li>
+   </ul>
+
+   <H2>LICENCE</H2>
+   <p>LeLeLe is a model designed to analyse the effect of conditional dissociation in the evolutionary emergence of cooperation.
+      <br>Copyright (C) 2013 <a target="_blank" href="http://segis.izqui.org">Segismundo S. Izquierdo</a> &amp; <a target="_blank" href="http://luis.izqui.org">Luis R. Izquierdo</a></p>
+
+   <p>This program is free software; you can redistribute it and/or modify it under the terms of the <a target="_blank" href="http://www.gnu.org/copyleft/gpl.html">GNU General Public License</a> as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.</p>
+   <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the <a target="_blank" href="http://www.gnu.org/copyleft/gpl.html">GNU General Public License</a> for more details.</p>
+   <p>You can download a copy of the <a target="_blank" href="http://www.gnu.org/copyleft/gpl.html">GNU General Public License</a> by clicking <a target="_blank" href="./gpl-3.0.txt">here</a>; you can also get a printed copy writing to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.</p>
+   <p>Contact information:
+      <br>Luis R. Izquierdo
+      <br> University of Burgos, Spain.
+      <br> e-mail: <a href="mailto:lrizquierdo@ubu.es">lrizquierdo@ubu.es</a>
+   </p>
+
+   <p>
+      <H2>MODELLERS</H2>
+      <p>This program has been designed and implemented by <a target="_blank" href="http://segis.izqui.org">Segismundo S. Izquierdo</a> &amp; <a target="_blank" href="http://luis.izqui.org">Luis R. Izquierdo</a>.</p>
+      <hr>
+
+</body>
+
+</html>
