@@ -98,6 +98,14 @@
          font-weight: bold
       }
    </STYLE>
+   <STYLE type="text/css">
+      img {
+         max-width: 100%;
+         height: auto;
+         width: auto\9;
+         /* ie8 */
+      }
+   </STYLE>
 
 </HEAD>
 
@@ -148,7 +156,8 @@
 
    <p>This section explains the formal model that <b>LeLeLe</b> implements. The information provided here should suffice to re-implement the same formal model in any sophisticated enough modelling platform. The figure below provides an informal (and slightly simplified) sketch that illustrates the sequence of events within each time-step.</p>
 
-   <center><img src="timeline.png" alt="timeline"></center>
+
+   <img style="margin:0px auto;display:block" src="./timeline.png" alt="timeline" />
    <p align="center"><i>Sketch of the sequence of events within each time-step. For the sake of clarity in the illustration, it is assumed that every individual is paired, i.e. <i class="parameter">prob-rematch</i> = 1.
       <br>The "Remaining Pairs" and "Singles" at the end of a time-step are identical to the "Existing Pairs" and "Singles" in the next time-step.</i>
    </p>
@@ -204,6 +213,8 @@
    <p>Such an identification of probabilities and frequencies leads to a deterministic set of equations that provides the mean dynamics of the stochastic agent-based model described above. The behaviour of this set of deterministic equations can be taken to approximate the behavior of the stochastic process described above if the population is large.</p>
 
    <h2>HOW TO USE IT</h2>
+
+   <img style="margin:0px auto;display:block" src="./lelele.png" />
 
    <h3>Payoffs</h3>
 
