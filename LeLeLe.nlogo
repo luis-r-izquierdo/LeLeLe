@@ -79,9 +79,9 @@ globals [
 
 ]
 
-breed [agents agent]
+breed [players player]
 
-agents-own [
+players-own [
   action        ;; the action is either 0 (C) or 1 (D)
   break-if-C    ;; 0 if the player does not split up after the other player plays C. 1 otherwise.
   break-if-D    ;; 0 if the player does not split up after the other player plays D. 1 otherwise.
@@ -146,7 +146,7 @@ end
 
 to setup-variables
   set strategy-names ["CSS" "CSL" "CLS" "CLL" "DSS" "DSL" "DLS" "DLL"]
-  set strategy-numbers n-values 8 [?]
+  set strategy-numbers n-values 8 [i -> i]
 
   set cum-num-cooperative-regime 0
   set cum-num-defective-regime   0
@@ -159,8 +159,8 @@ to setup-variables
   let i 0
   let j 0
   create-couples 36 [set hidden? true]
-  foreach sort couples [
-    ask ? [
+  foreach sort couples [ c ->
+    ask c [
       set st-1-strategy-number i
       set st-2-strategy-number j
       update-strategy-variables-md
@@ -175,8 +175,8 @@ to setup-variables
   ;; create the variables for the singles (mean dynamics)
   set i 0
   create-singles 8 [set hidden? true]
-  foreach sort singles [
-    ask ? [
+  foreach sort singles [ s ->
+    ask s [
       set strategy-number i
       update-strategy-variables-md
       set i (i + 1)
@@ -196,11 +196,11 @@ to setup-variables
   ;; all xai or xia for different i (including xaa once), then xaa again, and then saa twice.
   ;; Note that xai for i != a should be divided by two, while xaa and saa should be added
   ;; without dividing. That's why we add these last two twice.
-  set variables-corresponding-to-each-strategy (map [(sentence
-      (sort (couples with [st-1-strategy-number = ? or st-2-strategy-number = ?]))
-      (sort (couples with [st-1-strategy-number = ? and st-2-strategy-number = ?]))
-      (sort (singles with [strategy-number = ?]))
-      (sort (singles with [strategy-number = ?]))
+  set variables-corresponding-to-each-strategy (map [ st-n -> (sentence
+      (sort (couples with [st-1-strategy-number = st-n or st-2-strategy-number = st-n]))
+      (sort (couples with [st-1-strategy-number = st-n and st-2-strategy-number = st-n]))
+      (sort (singles with [strategy-number = st-n]))
+      (sort (singles with [strategy-number = st-n]))
       )] strategy-numbers)
   ;; Ideally, we would have done it using agentsets rather than lists, but the problem is that
   ;; agentsets cannot contain two copies of the same agent. That's why we use lists.
@@ -230,28 +230,28 @@ end
 
 
 to setup-initial-conditions
-  create-agents num-players [
+  create-players num-players [
     set mate nobody
     set payoff 0
     set hidden? true
   ]
-  set pool-of-singles (agents with [mate = nobody])
+  set pool-of-singles (players with [mate = nobody])
   set n-of-singles-at-the-beginning (count pool-of-singles)
 
   if-else initial-strategy = "random"
      [ ;; random distribution of initial strategies for the whole population
-       ask agents [
+       ask players [
          set strategy-number random 8
          update-strategy-variables
        ]
        ask singles [
          let my-st-number strategy-number
-         set value (count agents with [strategy-number = my-st-number]) / num-players
+         set value (count players with [strategy-number = my-st-number]) / num-players
        ]
      ]
      [
        let st-number (position initial-strategy strategy-names)
-       ask agents [
+       ask players [
          set strategy-number st-number
          update-strategy-variables
        ]
@@ -266,7 +266,7 @@ to setup-initial-conditions
 
   ;; do the matching in the mean dynamics, just to synchronise everything
   ;; with the agent-based model in the plots
-  set strategy-in-pool-of-singles-md map [[value] of ?] (map [one-of singles with [strategy-number = ?]] strategy-numbers)
+  set strategy-in-pool-of-singles-md map [? -> [value] of ?] (map [st-n -> one-of singles with [strategy-number = st-n]] strategy-numbers)
   ask couples [ set value couples-matched-this-tick-md]
   ask singles [ set value (1 - prob-rematch) * value ]
 end
@@ -282,7 +282,7 @@ to go
   play
 
   ;; Mean dynamics
-  set strategy-payoffs-md map [payoff-of-strategy-md ?] strategy-numbers
+  set strategy-payoffs-md map [st-n -> payoff-of-strategy-md st-n] strategy-numbers
   set total-payoff-md (sum strategy-payoffs-md)
   ;; end Mean dynamics
 
@@ -295,10 +295,10 @@ to go
   split-up
   ;; new generation
   kill-and-breed
-  if (count agents != num-players) [adjust-num-players]
+  if (count players != num-players) [adjust-num-players]
 
   ;; Mean dynamics
-  set strategy-in-pool-of-singles-md map [players-with-strategy-x-in-pool-of-singles-as-%-of-total-md ?] strategy-numbers
+  set strategy-in-pool-of-singles-md map [st-n -> players-with-strategy-x-in-pool-of-singles-as-%-of-total-md st-n] strategy-numbers
   set total-in-pool-of-singles-md (sum strategy-in-pool-of-singles-md)
   ask couples [ set value (couples-matched-this-tick-md + value * ifelse-value stable? [(1 - (1.0 / expected-life)) ^ 2][0]) ]
   ask singles [ set value (1 - prob-rematch) * (item strategy-number strategy-in-pool-of-singles-md) ]
@@ -337,7 +337,7 @@ to-report players-with-strategy-x-in-pool-of-singles-as-%-of-total-md [strategy]
   let couples-I-am-in couples with [st-1-strategy-number = strategy or st-2-strategy-number = strategy]
   let my-double-couple (couples with [st-1-strategy-number = strategy and st-2-strategy-number = strategy])
   ;; check total-payoff = 0
-  report prob-dying * ((1 - prob-mutation) * ifelse-value (total-payoff-md = 0) [1.0 / 8][(item strategy strategy-payoffs-md) / total-payoff-md] + prob-mutation / 8) +
+  report prob-dying * ((1 - prob-mutation) * (ifelse-value (total-payoff-md = 0) [1.0 / 8][(item strategy strategy-payoffs-md) / total-payoff-md]) + prob-mutation / 8) +
   (1 - prob-dying) * (1.0 / 2.0) * (prob-dying * sum [value] of (couples-I-am-in with [stable?]) + sum [value] of (couples-I-am-in with [not stable?]) +
     (first [value] of my-double-couple) * ifelse-value (first [stable?] of my-double-couple) [prob-dying][1]) +
     (1 - prob-dying) * first [value] of (singles with [strategy-number = strategy])
@@ -350,8 +350,8 @@ to-report couples-matched-this-tick-md
 end
 
 to make-couples
-  ask agents [set new-partnership? false]
-  set pool-of-singles (agents with [mate = nobody])
+  ask players [set new-partnership? false]
+  set pool-of-singles (players with [mate = nobody])
   set n-of-singles-at-the-beginning (count pool-of-singles)
   let players-to-be-paired (pool-of-singles with [random-float 1.0 < prob-rematch])
   set n-of-singles-selected-to-be-paired (count players-to-be-paired)
@@ -371,7 +371,7 @@ to make-couples
 end
 
 to play
-  ask agents [
+  ask players [
     set payoff ifelse-value (mate = nobody)
       [out-payoff]
       [payoff-for action ([action] of mate)]
@@ -388,7 +388,7 @@ to-report payoff-for [my-action her-action]
 end
 
 to split-up
-  ask agents[
+  ask players[
     if (mate != nobody) [
       if (([action] of mate = 0) and (break-if-C = 1))
         or (([action] of mate = 1) and (break-if-D = 1))
@@ -400,15 +400,15 @@ end
 
 to kill-and-breed
 
-  let list-fitness n-values 8 [sum [payoff] of agents with [strategy-number = ?]]
+  let list-fitness n-values 8 [? -> sum [payoff] of players with [strategy-number = ?]]
 
   if (sum list-fitness = 0) [set list-fitness n-values 8 [1]]
     ;; Applies when all players have zero fitness
   let cum-fitness [0]
     ;; cum-fitness last value is 0 and is 9 items long
-  foreach list-fitness [set cum-fitness fput (? + first cum-fitness) cum-fitness]
+  foreach list-fitness [? -> set cum-fitness fput (? + first cum-fitness) cum-fitness]
 
-  ask agents [
+  ask players [
     if (random-float 1.0 < (1.0 / expected-life))
       [
        if (mate != nobody)  [ ask mate [set mate nobody] ]
@@ -418,7 +418,7 @@ to kill-and-breed
         [set strategy-number 7
          let tmp random-float first cum-fitness
            ;; select the new strategy with probability proportional to fitness
-         foreach butfirst cum-fitness [ if ( tmp < ?) [set strategy-number (strategy-number - 1)] ]
+          foreach butfirst cum-fitness [ ? -> if ( tmp < ?) [set strategy-number (strategy-number - 1)] ]
         ]
        update-strategy-variables
       ]
@@ -426,11 +426,11 @@ to kill-and-breed
 end
 
 to adjust-num-players
-  let adjustment (num-players - (count agents))
+  let adjustment (num-players - (count players))
   if adjustment != 0 [
   ifelse adjustment > 0
     [
-      create-agents adjustment [
+      create-players adjustment [
         set mate nobody
         set strategy-number ifelse-value (initial-strategy = "random")
           [random 8]
@@ -439,7 +439,7 @@ to adjust-num-players
       ]
     ]
     [
-      ask n-of (0 - adjustment) agents [
+      ask n-of (0 - adjustment) players [
         if (mate != nobody)  [ ask mate [set mate nobody] ]
         die
       ]
@@ -462,7 +462,7 @@ end
 to gather-data
 
   ;; Agent-based model
-  set paired-players (agents with [mate != nobody])
+  set paired-players (players with [mate != nobody])
   set numCC (count paired-players with [action = 0 and [action] of mate = 0]) / 2
   set numDD (count paired-players with [action = 1 and [action] of mate = 1]) / 2
   set numCD (count paired-players with [action = 0 and [action] of mate = 1])
@@ -470,16 +470,16 @@ to gather-data
   set %-CC ifelse-value (num-outcomes = 0) [0] [(numCC / num-outcomes)]
   set %-CD ifelse-value (num-outcomes = 0) [0] [(numCD / num-outcomes)]
   set %-DD ifelse-value (num-outcomes = 0) [0] [(numDD / num-outcomes)]
-  let n-players (count agents)
+  let n-players (count players)
   set %-players-in-CC 2 * numCC / n-players
   set %-players-in-CD 2 * numCD / n-players
   set %-players-in-DD 2 * numDD / n-players
 
-  set strategy-frequencies n-values 8 [count agents with [strategy-number = ?]]
-  set strategy-frequencies-pool-of-singles n-values 8 [count pool-of-singles with [strategy-number = ?]]
+  set strategy-frequencies n-values 8 [st-n -> count players with [strategy-number = st-n]]
+  set strategy-frequencies-pool-of-singles n-values 8 [st-n -> count pool-of-singles with [strategy-number = st-n]]
   let num-singles-in-pool n-of-singles-at-the-beginning ;; this is just to avoid a potential division by 0
   if num-singles-in-pool = 0 [set num-singles-in-pool 1]
-  set strategy-frequencies-pool-of-singles-norm (map [? / num-singles-in-pool] strategy-frequencies-pool-of-singles)
+  set strategy-frequencies-pool-of-singles-norm (map [? -> ? / num-singles-in-pool] strategy-frequencies-pool-of-singles)
 
 
   ;; Mean dynamics
@@ -488,7 +488,7 @@ to gather-data
   set %-players-in-CD-md (sum [value] of CD-couples)
   set %-singles-md (sum [value] of singles)
 
-  set strategy-frequencies-md map [(sum map [[value] of ?] ?) / 2] variables-corresponding-to-each-strategy
+  set strategy-frequencies-md map [[v] -> (sum map [? -> [value] of ?] v) / 2] variables-corresponding-to-each-strategy
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
@@ -539,14 +539,14 @@ end
 
 to update-graphs
   ;; all graphs refer to the situation before the new breed comes in.
-  let current-num-agents (count agents)
+  let current-num-players (count players)
 
   set-current-plot "Players"
-    set-current-plot-pen "no play"  plotxy ticks current-num-agents
+    set-current-plot-pen "no play"  plotxy ticks current-num-players
     set-current-plot-pen "in DD"    plotxy ticks (2 * num-outcomes)
     set-current-plot-pen "in CD/DC" plotxy ticks (2 * (num-outcomes - numDD))
     set-current-plot-pen "in CC"    plotxy ticks (2 * numCC)
-    set-plot-y-range 0 current-num-agents
+    set-plot-y-range 0 current-num-players
 
   set-current-plot "Players (Mean dynamics)"
     set-current-plot-pen "no play"  plotxy ticks 1
@@ -562,7 +562,7 @@ to update-graphs
     plot (n-of-singles-at-the-beginning - n-of-singles-selected-to-be-paired)
     set-current-plot-pen "in pairs after matching"
     plot count paired-players
-    set-plot-y-range 0 current-num-agents
+    set-plot-y-range 0 current-num-players
 
   set-current-plot "Players' pairs (Mean dynamics)"
     set-current-plot-pen "singles before matching"
@@ -576,7 +576,7 @@ to update-graphs
   set-current-plot "Strategy Distribution"
     let total (sum strategy-frequencies)
     let bar 1
-    foreach (n-values 8 [?]) [
+    foreach (n-values 8 [? -> ?]) [ ? ->
       set-current-plot-pen item ? strategy-names
       plotxy ticks bar
       set bar (bar - ((item ? strategy-frequencies) / total))
@@ -586,7 +586,7 @@ to update-graphs
   set-current-plot "Strategy Distribution (Mean dynamics)"
     set total (sum strategy-frequencies-md)
     set bar 1
-    foreach (n-values 8 [?]) [
+    foreach (n-values 8 [? -> ?]) [ ? ->
       set-current-plot-pen item ? strategy-names
       plotxy ticks bar
       set bar (bar - ((item ? strategy-frequencies-md) / total))
@@ -598,10 +598,10 @@ end
 GRAPHICS-WINDOW
 670
 293
-915
-489
-1
-1
+843
+467
+-1
+-1
 55.0
 1
 2
@@ -631,7 +631,7 @@ num-players
 num-players
 1
 5000
-400
+400.0
 1
 1
 NIL
@@ -646,7 +646,7 @@ CC-payoff
 CC-payoff
 0
 10
-3
+3.0
 1
 1
 NIL
@@ -661,7 +661,7 @@ CD-payoff
 CD-payoff
 0
 10
-0
+0.0
 1
 1
 NIL
@@ -676,7 +676,7 @@ DC-payoff
 DC-payoff
 0
 10
-4
+4.0
 1
 1
 NIL
@@ -691,7 +691,7 @@ DD-payoff
 DD-payoff
 0
 10
-1
+1.0
 1
 1
 NIL
@@ -814,7 +814,7 @@ expected-life
 expected-life
 1
 100
-25
+25.0
 1
 1
 NIL
@@ -960,7 +960,7 @@ SLIDER
 %-dd-upper-limit
 0
 1
-1
+1.0
 0.01
 1
 NIL
@@ -1038,7 +1038,7 @@ INPUTBOX
 269
 403
 track-regimes-from-tick
-1000
+1000.0
 1
 0
 Number
@@ -1052,7 +1052,7 @@ prob-rematch
 prob-rematch
 0
 1
-1
+1.0
 0.01
 1
 NIL
@@ -1067,7 +1067,7 @@ out-payoff
 out-payoff
 0
 10
-0
+0.0
 1
 1
 NIL
@@ -1499,9 +1499,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 5.3.1
+NetLogo 6.1.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -1517,7 +1516,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@
