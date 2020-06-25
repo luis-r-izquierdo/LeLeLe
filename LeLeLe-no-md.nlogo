@@ -58,11 +58,6 @@ globals [
   num-transitions-cc-to-dd      ;; only since tick = track-regimes-from-tick!
   num-transitions-dd-to-cc      ;; only since tick = track-regimes-from-tick!
 
-  ;; Variables for the mean dynamics
-
-  CC-couples CD-couples DD-couples
-  variables-corresponding-to-each-strategy
-
   strategy-numbers
 
 ]
