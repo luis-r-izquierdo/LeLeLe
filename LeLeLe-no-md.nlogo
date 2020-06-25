@@ -6,7 +6,7 @@
 ;; LeLeLe is a model designed to analyse
 ;; the effect of conditional dissociation
 ;; in the evolutionary emergence of cooperation.
-;; Copyright (C) 2013 Segismundo S. Izquierdo & Luis R. Izquierdo
+;; Copyright (C) 2020 Segismundo S. Izquierdo & Luis R. Izquierdo
 ;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -33,8 +33,6 @@
 
 
 globals [
-
-  ;; Variables for the agent-based model
 
   numCC numCD numDD       ;; these variables store how many times each of the outcomes has been observed in one match
   %-CC %-CD %-DD
@@ -64,18 +62,8 @@ globals [
 
   CC-couples CD-couples DD-couples
   variables-corresponding-to-each-strategy
-  %-players-in-CC-md
-  %-players-in-CD-md
-  %-players-in-DD-md
-  %-singles-md
 
   strategy-numbers
-  strategy-payoffs-md
-  strategy-in-pool-of-singles-md
-  strategy-frequencies-md
-
-  total-payoff-md
-  total-in-pool-of-singles-md
 
 ]
 
