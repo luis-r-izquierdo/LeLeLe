@@ -36,7 +36,6 @@ globals [
 
   numCC numCD numDD       ;; these variables store how many times each of the outcomes has been observed in one match
   %-CC %-CD %-DD
-  %-players-in-CC %-players-in-CD %-players-in-DD
   num-outcomes
 
   pool-of-singles ;; players without mate at the beginning of the period
@@ -259,10 +258,6 @@ to gather-data
   set %-CC ifelse-value (num-outcomes = 0) [0] [(numCC / num-outcomes)]
   set %-CD ifelse-value (num-outcomes = 0) [0] [(numCD / num-outcomes)]
   set %-DD ifelse-value (num-outcomes = 0) [0] [(numDD / num-outcomes)]
-  let n-players (count players)
-  set %-players-in-CC 2 * numCC / n-players
-  set %-players-in-CD 2 * numCD / n-players
-  set %-players-in-DD 2 * numDD / n-players
 
   set strategy-frequencies n-values 8 [st-n -> count players with [strategy-number = st-n]]
   set strategy-frequencies-pool-of-singles n-values 8 [st-n -> count pool-of-singles with [strategy-number = st-n]]
@@ -287,7 +282,6 @@ to update-graphs
   let current-num-players (count players)
 
   set-current-plot "Players"
-    set-current-plot-pen "no play"  plotxy ticks current-num-players
     set-current-plot-pen "in DD"    plotxy ticks (2 * num-outcomes)
     set-current-plot-pen "in CD/DC" plotxy ticks (2 * (num-outcomes - numDD))
     set-current-plot-pen "in CC"    plotxy ticks (2 * numCC)
@@ -311,10 +305,10 @@ to update-graphs
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-402
-303
-575
-477
+401
+266
+574
+440
 -1
 -1
 55.0
@@ -344,10 +338,10 @@ SLIDER
 153
 num-players
 num-players
-1
+2
 5000
-402.0
-1
+300.0
+2
 1
 NIL
 HORIZONTAL
@@ -462,49 +456,15 @@ true
 true
 "" ""
 PENS
-"no play" 1.0 1 -10899396 true "" ""
 "in DD" 1.0 1 -2674135 true "" ""
 "in CD/DC" 1.0 1 -4539718 true "" ""
 "in CC" 1.0 1 -13345367 true "" ""
 
-MONITOR
-278
-239
-400
-284
-% players in CC
-%-players-in-CC
-3
-1
-11
-
-MONITOR
-537
-239
-658
-284
-% players in DD
-%-players-in-DD
-3
-1
-11
-
-MONITOR
-402
-239
-534
-284
-% players in CD
-%-players-in-CD
-3
-1
-11
-
 PLOT
 278
-502
+457
 657
-653
+608
 Singles before matching
 NIL
 NIL
@@ -553,7 +513,7 @@ NIL
 SLIDER
 11
 195
-139
+156
 228
 prob-mutation
 prob-mutation
@@ -588,9 +548,9 @@ ticks
 
 PLOT
 278
-285
+239
 657
-500
+454
 Strategy Distribution
 NIL
 NIL
@@ -612,10 +572,10 @@ PENS
 "DLL" 1.0 1 -8053223 true "" ""
 
 MONITOR
-11
-607
-64
-652
+12
+318
+76
+363
 % CC
 %-CC
 3
@@ -623,10 +583,10 @@ MONITOR
 11
 
 MONITOR
-207
-608
-268
-653
+149
+318
+226
+363
 % DD
 %-DD
 3
@@ -634,10 +594,10 @@ MONITOR
 11
 
 MONITOR
-87
-608
-188
-653
+81
+318
+143
+363
 % CD
 %-CD
 3
